@@ -17,7 +17,7 @@ function handleSegmentBytes(
   chunkFn,
   doneFn
 ) {
-	console.log("handleSegmentBytes");
+	console.log("audioSegmentFetch handleSegmentBytes");
 
   	const bytesAsUint8Array = new Uint8Array(bytes);
 
@@ -65,7 +65,7 @@ function handleSegmentBytes(
 			}
 
 			segmentTrackAndTimingInfoHandled = true;
-			console.log("handleSegmentBytes: segmentTrackAndTimingInfoHandled");
+			console.log("audioSegmentFetch handleSegmentBytes: segmentTrackAndTimingInfoHandled");
     	//}
 
 		chunkFn(segment, {data: bytesAsUint8Array, type: tracks.audio ? 'audio' : 'video'}, firstChunkFlag);
@@ -91,7 +91,7 @@ function waitForCompletion(
   	chunkFn,
   	doneFn
 ) {
-	console.log("waitForCompletion: firstChunkReceiveTime: " + firstChunkReceiveTime + " needInit: " + needInit + " initRcvd: " + initRcvd);
+	console.log("audioSegmentFetch waitForCompletion: firstChunkReceiveTime: " + firstChunkReceiveTime + " needInit: " + needInit + " initRcvd: " + initRcvd);
 
   	// We only start appending data to source buffers after both the init segment and the first media chunk are received.
 	if (firstChunkReceiveTime > 0 && ((needInit && initRcvd) || !needInit)) 
@@ -112,7 +112,7 @@ function waitForCompletion(
 	} 
 	else 
 	{
-    	console.log('!!!!!! Wait for more data');
+    	console.log('audioSegmentFetch Wait for more data');
   	}
 }
 
@@ -131,7 +131,7 @@ function handleInitSegmentResponse(
   	doneFn
 ) {
   	segment.map.bytes = new Uint8Array(responseBuffer);
-  	console.log("handleInitSegmentResponse responseBuffer length: " + responseBuffer.byteLength);
+  	console.log("audioSegmentFetch handleInitSegmentResponse responseBuffer length: " + responseBuffer.byteLength);
 
   	//let dec = new TextDecoder("utf-8");
   	//console.log(dec.decode(segment.map.bytes));
@@ -140,7 +140,7 @@ function handleInitSegmentResponse(
 
 	if (type !== 'mp4') 
 	{
-    	console.log('!!!!!!Error: Unsupported container format: ' + type);
+    	console.log('audioSegmentFetch: Unsupported container format: ' + type);
     	return;
   	}
 
@@ -152,7 +152,7 @@ function handleInitSegmentResponse(
     	// only support one track of each type for now
 		if (segment.map.tracks[track.type]) 
 		{
-      		console.log('!!!!!!Error: only support one track of each media type');
+      		console.log('audioSegmentFetch: only support one track of each media type');
       		return;
     	}
 
@@ -195,7 +195,7 @@ function handleMediaDataResponse(
   chunkFn,
   doneFn
 ) {
-  	console.log("handleMediaDataResponse responseBuffer length: " + responseBuffer.byteLength);
+  	console.log("audioSegmentFetch handleMediaDataResponse responseBuffer length: " + responseBuffer.byteLength);
 
 	if (responseBuffer.byteLength > 0 && !segmentDone)
 	{
@@ -204,7 +204,7 @@ function handleMediaDataResponse(
   		// tmp
 		if (type !== 'mp4') 
 		{
-    		console.log('!!!!!!Error: Unsupported container format: ' + type + ", but let's continue");
+    		console.log('audioSegmentFetch: Unsupported container format: ' + type + ", but let's continue");
     		//return;
 		}
 	}
@@ -315,7 +315,7 @@ function findLastTopIsoBoxCompleted(types, buffer, offset)
   	return boxInfo;
 }
 
-export const mediaSegmentFetch = ({
+export const audioSegmentFetch = ({
   segment,
   trackInfoFn,
   timingInfoFn,
@@ -339,7 +339,7 @@ export const mediaSegmentFetch = ({
 		const initReq = new XMLHttpRequest();
 		initReq.responseType = 'arraybuffer';
 
-		console.log("!!!!!!Loading " + segment.map.resolvedUri + "...");
+		console.log("audioSegmentFetch Loading " + segment.map.resolvedUri + "...");
     	initReq.open('GET', segment.map.resolvedUri);
 
     	initReq.onload = function() {
@@ -347,8 +347,8 @@ export const mediaSegmentFetch = ({
 			{
         		initRcvd = true;
 
-				console.log("http status: " + this.status);
-				console.log("content length: " + this.getResponseHeader('Content-Length'));
+				console.log("audioSegmentFetch http status: " + this.status);
+				console.log("audioSegmentFetch content length: " + this.getResponseHeader('Content-Length'));
 
         		handleInitSegmentResponse(
           			segment,
@@ -367,7 +367,7 @@ export const mediaSegmentFetch = ({
 		  	} 
 		  	else 
 		  	{
-        		console.log('!!!!!!Error downloading init segment!');
+        		console.log('audioSegmentFetch Error downloading init segment!');
         		throw new Error(`Error downloading init segment! status: ${this.status}`);
       		}
     	};
@@ -375,20 +375,20 @@ export const mediaSegmentFetch = ({
     	initReq.send();
   	}
 
-  	console.log("!!!!!!Loading " + segment.resolvedUri + "...");
+  	console.log("audioSegmentFetch Loading " + segment.resolvedUri + "...");
 
   	// Fetch the media segment
 	fetch(segment.resolvedUri).then(function(response) 
 	{
     	if (!response.ok) {
-          	throw new Error(`Error downloading media segment! status: ${response.status}`);
+          	throw new Error(`Error downloading audio segment! status: ${response.status}`);
        	}
 
     	if (!response.body) {
-      		console.log('!!!!!!Empty init segment body');
+      		console.log('audioSegmentFetch Empty audio init segment body');
     	}
 
-    	console.log('!!!!!!Fetching media segment: bytes of response received: ' + response.headers.get('Content-Length'));
+    	console.log('audioSegmentFetch Fetching audio segment: bytes of response received: ' + response.headers.get('Content-Length'));
 
     	let remaining = new Uint8Array();
     	let offset = 0;
@@ -400,7 +400,7 @@ export const mediaSegmentFetch = ({
         		segmentDone = true;
 				if (remaining) 
 				{
-					console.log("segment done!!!");
+					console.log("audioSegmentFetch audio segment done!!!");
             		handleMediaDataResponse(
                 		segment,
                 		remaining.buffer,
@@ -453,7 +453,7 @@ export const mediaSegmentFetch = ({
             			firstChunkFlag = false;
 					}
 
-					console.log("before segment done: ");
+					console.log("audioSegmentFetch before audio segment done: ");
           			handleMediaDataResponse(
             			segment,
             			data.buffer,

@@ -7,7 +7,8 @@ import Config from './config';
 import window from 'global/window';
 import { initSegmentId, segmentKeyId } from './bin-utils';
 import { mediaSegmentRequest, REQUEST_ERRORS } from './media-segment-request';
-import { mediaSegmentFetch } from './media-segment-fetch';
+import { audioSegmentFetch } from './audio-segment-fetch';
+import { videoSegmentFetch } from './video-segment-fetch';
 import TransmuxWorker from 'worker!./transmuxer-worker.worker.js';
 import segmentTransmuxer from './segment-transmuxer';
 import { TIME_FUDGE_FACTOR, timeUntilRebuffer as timeUntilRebuffer_ } from './ranges';
@@ -2280,14 +2281,28 @@ export default class SegmentLoader extends videojs.EventTarget {
     }
 	  // Fetch
     else {
-		  segmentInfo.abortRequests = mediaSegmentFetch({
-			  segment: simpleSegment,
-			  trackInfoFn: this.handleTrackInfo_.bind(this),
-			  timingInfoFn: this.handleTimingInfo_.bind(this),
-        dataFn: this.handleData_.bind(this),
-        chunkFn: this.handleMediaChunk_.bind(this),
-        doneFn: this.segmentRequestFinished_.bind(this)
-		  });
+      if (this.loaderType_ === 'audio')
+      {
+		    segmentInfo.abortRequests = audioSegmentFetch({
+			    segment: simpleSegment,
+			    trackInfoFn: this.handleTrackInfo_.bind(this),
+			    timingInfoFn: this.handleTimingInfo_.bind(this),
+          dataFn: this.handleData_.bind(this),
+          chunkFn: this.handleMediaChunk_.bind(this),
+          doneFn: this.segmentRequestFinished_.bind(this)
+        });
+      }
+      else if (this.loaderType_ === 'main')
+      {
+		    segmentInfo.abortRequests = videoSegmentFetch({
+			    segment: simpleSegment,
+			    trackInfoFn: this.handleTrackInfo_.bind(this),
+			    timingInfoFn: this.handleTimingInfo_.bind(this),
+          dataFn: this.handleData_.bind(this),
+          chunkFn: this.handleMediaChunk_.bind(this),
+          doneFn: this.segmentRequestFinished_.bind(this)
+        });
+      }
 	  }
   }
 
