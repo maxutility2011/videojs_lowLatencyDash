@@ -237,7 +237,7 @@ export const formatVideoPlaylist = ({ attributes, segments, sidx }) => {
   return playlist;
 };
 
-export const toM3u8 = (dashPlaylists, locations, sidxMapping = {}) => {
+export const toM3u8 = (dashPlaylists, availabilityStartTime, locations, sidxMapping = {}) => {
   if (!dashPlaylists.length) {
     return {};
   }
@@ -295,6 +295,11 @@ export const toM3u8 = (dashPlaylists, locations, sidxMapping = {}) => {
 
   if (vttPlaylists.length) {
     master.mediaGroups.SUBTITLES.subs = organizeVttPlaylists(vttPlaylists, sidxMapping);
+  }
+
+  if (availabilityStartTime)
+  {
+	master.availabilityStartTime = availabilityStartTime;
   }
 
   return master;

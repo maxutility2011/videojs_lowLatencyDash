@@ -118,6 +118,8 @@ const shouldSwitchToMedia = function({
   return false;
 };
 
+var currentTimeOffset = 0;
+
 /**
  * the master playlist controller controller all interactons
  * between playlists and segmentloaders. At this time this mainly
@@ -235,6 +237,34 @@ export class MasterPlaylistController extends videojs.EventTarget {
       new DashPlaylistLoader(src, this.vhs_, this.requestOptions_) :
       new PlaylistLoader(src, this.vhs_, this.requestOptions_);
     this.setupMasterPlaylistLoaderListeners_();
+
+    function getStats(vhs, playbackStartTime) {
+      console.log("getStats");
+
+      if (vhs)
+      {
+        let currentPlaybackTimeMs = vhs.tech_.currentTime() * 1000;
+        console.log("Stats: vhs currenTime: " + currentPlaybackTimeMs + " playbackStartTime: " + playbackStartTime);
+        
+        // currentTimeOffset: The initial difference of program time and wallclock time.
+        if (!currentTimeOffset && currentPlaybackTimeMs > 0)
+        {
+          currentTimeOffset = currentPlaybackTimeMs - 2000; // 2000: the first time function getStat() is called is 2 seconds from the initilization of the master-playlist-controller.
+        }
+         
+        let currentWallTimeMs = Date.now() - playbackStartTime + currentTimeOffset;
+        let latency = currentWallTimeMs - currentPlaybackTimeMs;
+
+        console.log("Stats: currentPlaybackTime: " + currentPlaybackTimeMs + " currentWallTime: " + currentWallTimeMs);
+        //console.log("Stats: bufferedSegments: " + player.metrics.bufferedSegments.amountOfBufferedVideoSegments);
+        console.log("Stats: latency: " + latency/1000);
+      }
+
+      setTimeout(getStats, 2000, vhs, playbackStartTime);
+    }
+
+    const playbackStartTime = Date.now();
+    setTimeout(getStats, 2000, this, playbackStartTime);
 
     // setup segment loaders
     // combined audio/video or just video when alternate audio track is selected
