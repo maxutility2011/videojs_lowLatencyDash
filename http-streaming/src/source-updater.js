@@ -39,24 +39,17 @@ const nextQueueIndexOfType = (type, queue) => {
 };
 
 const shiftQueue = (type, sourceUpdater) => {
-  console.log("sourceUpdater::shiftQueue: " + type);
   if (sourceUpdater.queue.length === 0) {
-    console.log("sourceUpdater::shiftQueue: zero queue length");
     return;
   }
 
   let queueIndex = 0;
   let queueEntry = sourceUpdater.queue[queueIndex];
 
-  console.log("sourceUpdater::shiftQueue: queueEntry.type: " + queueEntry.type);
-
   if (queueEntry.type === 'mediaSource') {
-    console.log("sourceUpdater::shiftQueue: queueEntry");
     if (!sourceUpdater.updating() && sourceUpdater.mediaSource.readyState !== 'closed') {
-      console.log("sourceUpdater::shiftQueue: before acting");
       sourceUpdater.queue.shift();
 
-      console.log("sourceUpdater::Acting...");
       queueEntry.action(sourceUpdater);
 
       if (queueEntry.doneFn) {
@@ -152,7 +145,6 @@ const actions = {
     let content = dec.decode(bytes);
 
     try { // BoZ: tmp
-      //console.log("sourceUpdater: appending " + bytes.byteLength + " at " + Date.now()); //+ " string: " + content);
       sourceBuffer.appendBuffer(bytes);
     }
     catch(err)
@@ -228,7 +220,6 @@ const actions = {
     }
   },
   addSourceBuffer: (type, codec) => (sourceUpdater) => {
-    console.log("sourceUpdater::action::addSourceBuffer!!!");
     const titleType = toTitleCase(type);
     const mime = getMimeForCodec(codec);
 
@@ -239,8 +230,6 @@ const actions = {
     sourceBuffer.addEventListener('updateend', sourceUpdater[`on${titleType}UpdateEnd_`]);
     sourceBuffer.addEventListener('error', sourceUpdater[`on${titleType}Error_`]);
     sourceUpdater.codecs[type] = codec;
-    console.log("codec: " + codec + "mime: " + mime);
-    console.log("sourceUpdater::addSourceBuffer: " + sourceBuffer);
     sourceUpdater[`${type}Buffer`] = sourceBuffer;
   },
   removeSourceBuffer: (type) => (sourceUpdater) => {
@@ -285,7 +274,6 @@ const actions = {
 };
 
 const pushQueue = ({type, sourceUpdater, action, doneFn, name}) => {
-  console.log("sourceUpdater::pushQueue: " + type);
   sourceUpdater.queue.push({
     type,
     action,
@@ -296,8 +284,6 @@ const pushQueue = ({type, sourceUpdater, action, doneFn, name}) => {
 };
 
 const onUpdateend = (type, sourceUpdater) => (e) => {
-  console.log("sourceUpdater::onUpdateend");
-
   // Although there should, in theory, be a pending action for any updateend receieved,
   // there are some actions that may trigger updateend events without set definitions in
   // the w3c spec. For instance, setting the duration on the media source may trigger
@@ -349,7 +335,6 @@ export default class SourceUpdater extends videojs.EventTarget {
     this.onVideoUpdateEnd_ = onUpdateend('video', this);
     this.onAudioUpdateEnd_ = onUpdateend('audio', this);
     this.onVideoError_ = (e) => {
-      console.log("video append error: " + e.message);
       // used for debugging
       this.videoError_ = e;
     };
@@ -365,7 +350,6 @@ export default class SourceUpdater extends videojs.EventTarget {
   }
 
   createSourceBuffers(codecs) {
-    console.log("sourceUpdater: createSourceBuffers");
     if (this.ready()) {
       console.log("sourceUpdater: source buffer already created");
       // already created them before
@@ -425,7 +409,6 @@ export default class SourceUpdater extends videojs.EventTarget {
       return;
     }
 
-    console.log("sourceUpdater::removeSourceBuffer");
     pushQueue({
       type: 'mediaSource',
       sourceUpdater: this,
@@ -505,8 +488,6 @@ export default class SourceUpdater extends videojs.EventTarget {
    *        Codecs to switch to
    */
   addOrChangeSourceBuffers(codecs) {
-    console.log("sourceUpdater::addOrChangeSourceBuffers");
-
     if (!codecs || typeof codecs !== 'object' || Object.keys(codecs).length === 0) {
       throw new Error('Cannot addOrChangeSourceBuffers to undefined codecs');
     }
@@ -534,8 +515,6 @@ export default class SourceUpdater extends videojs.EventTarget {
    */
   appendBuffer(options, doneFn) {
     const {segmentInfo, type, bytes} = options;
-
-    console.log("sourceUpdater::appendBuffer: " + type);
 
     this.processedAppend_ = true;
     if (type === 'audio' && this.videoBuffer && !this.videoAppendQueued_) {
@@ -655,7 +634,6 @@ export default class SourceUpdater extends videojs.EventTarget {
     // source buffers to no longer be updating. "If the updating attribute equals true on
     // any SourceBuffer in sourceBuffers, then throw an InvalidStateError exception and
     // abort these steps." (source: https://www.w3.org/TR/media-source/#attributes).
-    console.log("sourceUpdater::setDuration");
     pushQueue({
       type: 'mediaSource',
       sourceUpdater: this,
@@ -683,7 +661,6 @@ export default class SourceUpdater extends videojs.EventTarget {
     // source buffers to no longer be updating. "If the updating attribute equals true on
     // any SourceBuffer in sourceBuffers, then throw an InvalidStateError exception and
     // abort these steps." (source: https://www.w3.org/TR/media-source/#attributes).
-    console.log("sourceUpdater::endOfStream");
     pushQueue({
       type: 'mediaSource',
       sourceUpdater: this,
@@ -827,7 +804,6 @@ export default class SourceUpdater extends videojs.EventTarget {
    *        The callback to queue.
    */
   videoQueueCallback(callback) {
-    console.log("SourceUpdater::videoQueueCallback");
     if (!this.videoBuffer) {
       console.log("SourceUpdater::videoQueueCallback: null this.videoBuffer");
       return "videoSourceBufferNotReady"; // BoZ: tmp

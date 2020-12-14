@@ -47,7 +47,7 @@ export const segmentRange = {
     } = attributes;
     const now = (NOW + clientOffset) / 1000;
 	//console.log("mpd-parser: availabilityTimeOffset: " + attributes.availabilityTimeOffset);
-    const periodStartWC = availabilityStartTime + start - attributes.availabilityTimeOffset + 0.5;
+    const periodStartWC = availabilityStartTime + start - attributes.availabilityTimeOffset + 0.8;
     const periodEndWC = now + minimumUpdatePeriod;
     const periodDuration = periodEndWC - periodStartWC;
     const segmentCount = Math.ceil(periodDuration * timescale / duration);

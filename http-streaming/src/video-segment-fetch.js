@@ -17,8 +17,6 @@ function handleSegmentBytes(
   chunkFn,
   doneFn
 ) {
-	console.log("videoSegmentFetch: handleSegmentBytes");
-
   	const bytesAsUint8Array = new Uint8Array(bytes);
 
   	const {tracks} = segment.map;
@@ -65,7 +63,6 @@ function handleSegmentBytes(
 			}
 
 			segmentTrackAndTimingInfoHandled = true;
-			console.log("videoSegmentFetch handleSegmentBytes: segmentTrackAndTimingInfoHandled");
     	//}
 
 		chunkFn(segment, {data: bytesAsUint8Array, type: tracks.audio ? 'audio' : 'video'}, firstChunkFlag);
@@ -91,8 +88,6 @@ function waitForCompletion(
   	chunkFn,
   	doneFn
 ) {
-	console.log("videoSegmentFetch waitForCompletion: firstChunkReceiveTime: " + firstChunkReceiveTime + " needInit: " + needInit + " initRcvd: " + initRcvd);
-
   	// We only start appending data to source buffers after both the init segment and the first media chunk are received.
 	if (firstChunkReceiveTime > 0 && ((needInit && initRcvd) || !needInit)) 
 	{
@@ -110,10 +105,6 @@ function waitForCompletion(
       		doneFn
     	);
 	} 
-	else 
-	{
-    	console.log('videoSegmentFetch Wait for more data');
-  	}
 }
 
 function handleInitSegmentResponse(
@@ -131,7 +122,6 @@ function handleInitSegmentResponse(
   	doneFn
 ) {
   	segment.map.bytes = new Uint8Array(responseBuffer);
-  	console.log("videoSegmentFetch handleInitSegmentResponse responseBuffer length: " + responseBuffer.byteLength);
 
   	//let dec = new TextDecoder("utf-8");
   	//console.log(dec.decode(segment.map.bytes));
@@ -140,7 +130,6 @@ function handleInitSegmentResponse(
 
 	if (type !== 'mp4') 
 	{
-    	console.log('videoSegmentFetch: Unsupported container format: ' + type);
     	return;
   	}
 
@@ -195,8 +184,6 @@ function handleMediaDataResponse(
   chunkFn,
   doneFn
 ) {
-  	console.log("videoSegmentFetch handleMediaDataResponse responseBuffer length: " + responseBuffer.byteLength);
-
 	if (responseBuffer.byteLength > 0 && !segmentDone)
 	{
   		const type = detectContainerForBytes(new Uint8Array(responseBuffer));
@@ -204,7 +191,6 @@ function handleMediaDataResponse(
   		// tmp
 		if (type !== 'mp4') 
 		{
-    		console.log('videoSegmentFetch: Unsupported container format: ' + type + ", but let's continue");
     		//return;
 		}
 	}
@@ -339,16 +325,12 @@ export const videoSegmentFetch = ({
 		const initReq = new XMLHttpRequest();
 		initReq.responseType = 'arraybuffer';
 
-		console.log("videoSegmentFetch videoSegmentFetch " + segment.map.resolvedUri + "...");
     	initReq.open('GET', segment.map.resolvedUri);
 
     	initReq.onload = function() {
 			if (this.status >= 200 && this.status < 300) 
 			{
         		initRcvd = true;
-
-				console.log("videoSegmentFetch http status: " + this.status);
-				console.log("videoSegmentFetch content length: " + this.getResponseHeader('Content-Length'));
 
         		handleInitSegmentResponse(
           			segment,
@@ -375,8 +357,6 @@ export const videoSegmentFetch = ({
     	initReq.send();
   	}
 
-  	console.log("videoSegmentFetch Loading " + segment.resolvedUri + "...");
-
   	// Fetch the media segment
 	fetch(segment.resolvedUri).then(function(response) 
 	{
@@ -388,8 +368,6 @@ export const videoSegmentFetch = ({
       		console.log('videoSegmentFetch Empty video init segment body');
     	}
 
-    	console.log('videoSegmentFetch Fetching video segment: bytes of response received: ' + response.headers.get('Content-Length'));
-
     	let remaining = new Uint8Array();
     	let offset = 0;
     	const reader = response.body.getReader();
@@ -400,7 +378,6 @@ export const videoSegmentFetch = ({
         		segmentDone = true;
 				if (remaining) 
 				{
-					console.log("videoSegmentFetch Video segment done!!!");
             		handleMediaDataResponse(
                 		segment,
                 		remaining.buffer,
@@ -453,7 +430,6 @@ export const videoSegmentFetch = ({
             			firstChunkFlag = false;
 					}
 
-					console.log("videoSegmentFetch before video segment done: ");
           			handleMediaDataResponse(
             			segment,
             			data.buffer,

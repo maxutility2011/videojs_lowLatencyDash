@@ -652,8 +652,6 @@ export class MasterPlaylistController extends videojs.EventTarget {
     });
 
     const updateCodecs = () => {
-      console.log("codec: updateCodecs!!!!!!");
-      
       if (!this.sourceUpdater_.ready()) {
         return this.tryToCreateSourceBuffers_();
       }
@@ -1456,13 +1454,6 @@ export class MasterPlaylistController extends videojs.EventTarget {
 
     // one or both loaders has not loaded sufficently to get codecs
     if (!this.mainSegmentLoader_.currentMediaInfo_ || (usingAudioLoader && !this.audioSegmentLoader_.currentMediaInfo_)) {
-      if (!this.mainSegmentLoader_.currentMediaInfo_) {
-        console.log("masterPlaylistController: mainSegmentLoader_.currentMediaInfo_ missing");
-      }
-      else {
-        console.log("masterPlaylistController: audioSegmentLoader_.currentMediaInfo_ missing");
-      }
-      
       return false;
     }
 
@@ -1592,16 +1583,13 @@ export class MasterPlaylistController extends videojs.EventTarget {
    * @private
    */
   tryToCreateSourceBuffers_() {
-    console.log("masterPlaylistController: tryToCreateSourceBuffers_");
     // media source is not ready yet or sourceBuffers are already
     // created.
     if (this.mediaSource.readyState !== 'open' || this.sourceUpdater_.ready()) {
-      console.log("masterPlaylistController: source buffer already created.");
       return;
     }
 
     if (!this.areMediaTypesKnown_()) {
-      console.log("masterPlaylistController: media type unknown");
       return;
     }
 
@@ -1609,7 +1597,6 @@ export class MasterPlaylistController extends videojs.EventTarget {
 
     // no codecs means that the playlist was excluded
     if (!codecs) {
-      console.log("masterPlaylistController: missing codec");
       return;
     }
 
