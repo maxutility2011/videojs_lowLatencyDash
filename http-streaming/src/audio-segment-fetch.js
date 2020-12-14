@@ -4,7 +4,7 @@ import {
   isLikelyFmp4MediaSegment
 } from '@videojs/vhs-utils/dist/containers';
 
-var segmentTrackAndTimingInfoHandled = false;
+let segmentTrackAndTimingInfoHandled = false;
 
 function handleSegmentBytes(
   segment,
@@ -21,31 +21,27 @@ function handleSegmentBytes(
 
   	const {tracks} = segment.map;
 
-	segment.isFmp4 = true;
+  segment.isFmp4 = true;
 
-	if (bytes.byteLength && !segmentDone)
-	{
+  if (bytes.byteLength && !segmentDone) {
     	// Only do this once
-		//if (!segmentTrackAndTimingInfoHandled) 
-		//{
+    // if (!segmentTrackAndTimingInfoHandled)
+    // {
     		const trackInfo = {
       			isFmp4: true,
       			hasVideo: !!tracks.video,
       			hasAudio: !!tracks.audio
     		};
 
-			if (tracks.audio && tracks.audio.codec && tracks.audio.codec !== 'enca') 
-			{
+    if (tracks.audio && tracks.audio.codec && tracks.audio.codec !== 'enca') {
       			trackInfo.audioCodec = tracks.audio.codec;
     		}
 
-			if (tracks.video && tracks.video.codec && tracks.video.codec !== 'encv') 
-			{
+    if (tracks.video && tracks.video.codec && tracks.video.codec !== 'encv') {
       			trackInfo.videoCodec = tracks.video.codec;
     		}
 
-			if (tracks.video && tracks.audio) 
-			{
+    if (tracks.video && tracks.audio) {
       			trackInfo.isMuxed = true;
     		}
 
@@ -53,25 +49,22 @@ function handleSegmentBytes(
 
       		const timingInfo = mp4probe.startTime(segment.map.timescales, bytesAsUint8Array);
 
-			if (trackInfo.hasAudio && !trackInfo.isMuxed) 
-			{
+    if (trackInfo.hasAudio && !trackInfo.isMuxed) {
       			timingInfoFn(segment, 'audio', 'start', timingInfo);
     		}
 
     		if (trackInfo.hasVideo) {
       			timingInfoFn(segment, 'video', 'start', timingInfo);
-			}
+    }
 
-			segmentTrackAndTimingInfoHandled = true;
-    	//}
+    segmentTrackAndTimingInfoHandled = true;
+    	// }
 
-		chunkFn(segment, {data: bytesAsUint8Array, type: tracks.audio ? 'audio' : 'video'}, firstChunkFlag);
-	}
-	else if (segmentTrackAndTimingInfoHandled)
-	{
-		dataFn(segment, {data: bytes, type: tracks.audio ? 'audio' : 'video'});
-		doneFn(null, segment, {});
-	}
+    chunkFn(segment, {data: bytesAsUint8Array, type: tracks.audio ? 'audio' : 'video'}, firstChunkFlag);
+  } else if (segmentTrackAndTimingInfoHandled) {
+    dataFn(segment, {data: bytes, type: tracks.audio ? 'audio' : 'video'});
+    doneFn(null, segment, {});
+  }
 }
 
 function waitForCompletion(
@@ -89,8 +82,7 @@ function waitForCompletion(
   	doneFn
 ) {
   	// We only start appending data to source buffers after both the init segment and the first media chunk are received.
-	if (firstChunkReceiveTime > 0 && ((needInit && initRcvd) || !needInit)) 
-	{
+  if (firstChunkReceiveTime > 0 && ((needInit && initRcvd) || !needInit)) {
     	segment.endOfAllRequests = Date.now();
 
     	handleSegmentBytes(
@@ -104,13 +96,13 @@ function waitForCompletion(
       		chunkFn,
       		doneFn
     	);
-	} 
+  }
 }
 
 function handleInitSegmentResponse(
   	segment,
-	responseBuffer,
-	segmentDone,
+  responseBuffer,
+  segmentDone,
   	needInit,
   	initRcvd,
   	firstChunkReceiveTime,
@@ -123,13 +115,12 @@ function handleInitSegmentResponse(
 ) {
   	segment.map.bytes = new Uint8Array(responseBuffer);
 
-  	//let dec = new TextDecoder("utf-8");
-  	//console.log(dec.decode(segment.map.bytes));
+  	// let dec = new TextDecoder("utf-8");
+  	// console.log(dec.decode(segment.map.bytes));
 
   	const type = detectContainerForBytes(segment.map.bytes);
 
-	if (type !== 'mp4') 
-	{
+  if (type !== 'mp4') {
     	return;
   	}
 
@@ -139,25 +130,23 @@ function handleInitSegmentResponse(
     	segment.map.tracks = segment.map.tracks || {};
 
     	// only support one track of each type for now
-		if (segment.map.tracks[track.type]) 
-		{
+    if (segment.map.tracks[track.type]) {
       		console.log('audioSegmentFetch: only support one track of each media type');
       		return;
     	}
 
     	segment.map.tracks[track.type] = track;
 
-		if (track.id && track.timescale) 
-		{
+    if (track.id && track.timescale) {
       		segment.map.timescales = segment.map.timescales || {};
       		segment.map.timescales[track.id] = track.timescale;
     	}
   	});
 
-	waitForCompletion(
+  waitForCompletion(
     	segment,
-		responseBuffer,
-		segmentDone,
+    responseBuffer,
+    segmentDone,
     	needInit,
     	initRcvd,
     	firstChunkReceiveTime,
@@ -184,16 +173,14 @@ function handleMediaDataResponse(
   chunkFn,
   doneFn
 ) {
-	if (responseBuffer.byteLength > 0 && !segmentDone)
-	{
+  if (responseBuffer.byteLength > 0 && !segmentDone) {
   		const type = detectContainerForBytes(new Uint8Array(responseBuffer));
 
   		// tmp
-		if (type !== 'mp4') 
-		{
-    		//return;
-		}
-	}
+    if (type !== 'mp4') {
+    		// return;
+    }
+  }
 
   	waitForCompletion(
     	segment,
@@ -211,10 +198,8 @@ function handleMediaDataResponse(
   	);
 }
 
-function concatTypedArray(remaining, data) 
-{
-	if (remaining.length === 0) 
-	{
+function concatTypedArray(remaining, data) {
+  if (remaining.length === 0) {
     	return data;
   	}
 
@@ -227,40 +212,34 @@ function concatTypedArray(remaining, data)
 }
 
 class IsoBoxSearchInfo {
-  	constructor(lastCompletedOffset, found, size) 
-  	{
+  	constructor(lastCompletedOffset, found, size) {
     	this.lastCompletedOffset = lastCompletedOffset;
     	this.found = found;
     	this.size = size;
   	}
 }
 
-function parseUint32(data, offset) 
-{
+function parseUint32(data, offset) {
   	return data[offset + 3] >>> 0 |
         (data[offset + 2] << 8) >>> 0 |
         (data[offset + 1] << 16) >>> 0 |
         (data[offset] << 24) >>> 0;
 }
 
-function parseIsoBoxType(data, offset) 
-{
+function parseIsoBoxType(data, offset) {
   	return String.fromCharCode(data[offset++]) +
         String.fromCharCode(data[offset++]) +
         String.fromCharCode(data[offset++]) +
         String.fromCharCode(data[offset]);
 }
 
-function findLastTopIsoBoxCompleted(types, buffer, offset) 
-{
-	if (offset === undefined) 
-	{
+function findLastTopIsoBoxCompleted(types, buffer, offset) {
+  if (offset === undefined) {
     	offset = 0;
   	}
 
   	// 8 = size (uint32) + type (4 characters)
-	if (!buffer || offset + 8 >= buffer.byteLength) 
-	{
+  if (!buffer || offset + 8 >= buffer.byteLength) {
     	return new IsoBoxSearchInfo(0, false);
   	}
 
@@ -268,24 +247,18 @@ function findLastTopIsoBoxCompleted(types, buffer, offset)
   	let boxInfo;
   	let lastCompletedOffset = 0;
 
-	while (offset < data.byteLength) 
-	{
+  while (offset < data.byteLength) {
     	const boxSize = parseUint32(data, offset);
     	const boxType = parseIsoBoxType(data, offset + 4);
 
-		if (boxSize === 0) 
-		{
+    if (boxSize === 0) {
       		break;
     	}
 
-		if (offset + boxSize <= data.byteLength) 
-		{
-			if (types.indexOf(boxType) >= 0) 
-			{
+    if (offset + boxSize <= data.byteLength) {
+      if (types.indexOf(boxType) >= 0) {
         		boxInfo = new IsoBoxSearchInfo(offset, true, boxSize);
-			} 
-			else 
-			{
+      } else {
         		lastCompletedOffset = offset + boxSize;
       		}
     	}
@@ -293,8 +266,7 @@ function findLastTopIsoBoxCompleted(types, buffer, offset)
     	offset += boxSize;
   	}
 
-	if (!boxInfo) 
-	{
+  if (!boxInfo) {
     	return new IsoBoxSearchInfo(lastCompletedOffset, false);
   	}
 
@@ -315,27 +287,27 @@ export const audioSegmentFetch = ({
   	let firstChunkFlag = false;
   	let segmentDone = false;
 
-	segmentTrackAndTimingInfoHandled= false;
+  segmentTrackAndTimingInfoHandled = false;
 
-	// Fetch init segment first, if needed and not already loaded
+  // Fetch init segment first, if needed and not already loaded
   	if (segment.map && !segment.map.bytes) {
     	// init segment required
     	needInit = true;
 
-		const initReq = new XMLHttpRequest();
-		initReq.responseType = 'arraybuffer';
+    const initReq = new XMLHttpRequest();
+
+    initReq.responseType = 'arraybuffer';
 
     	initReq.open('GET', segment.map.resolvedUri);
 
     	initReq.onload = function() {
-			if (this.status >= 200 && this.status < 300) 
-			{
+      if (this.status >= 200 && this.status < 300) {
         		initRcvd = true;
 
         		handleInitSegmentResponse(
           			segment,
-					this.response,
-					segmentDone,
+          this.response,
+          segmentDone,
           			needInit,
           			initRcvd,
           			firstChunkReceiveTime,
@@ -346,9 +318,7 @@ export const audioSegmentFetch = ({
           			chunkFn,
           			doneFn
         		);
-		  	} 
-		  	else 
-		  	{
+		  	} else {
         		console.log('audioSegmentFetch Error downloading init segment!');
         		throw new Error(`Error downloading init segment! status: ${this.status}`);
       		}
@@ -358,8 +328,7 @@ export const audioSegmentFetch = ({
   	}
 
   	// Fetch the media segment
-	fetch(segment.resolvedUri).then(function(response) 
-	{
+  fetch(segment.resolvedUri).then(function(response) {
     	if (!response.ok) {
           	throw new Error(`Error downloading audio segment! status: ${response.status}`);
        	}
@@ -373,11 +342,9 @@ export const audioSegmentFetch = ({
     	const reader = response.body.getReader();
 
     	const processMediaSegmentData = function({value, done}) {
-			if (done) 
-			{
+      if (done) {
         		segmentDone = true;
-				if (remaining) 
-				{
+        if (remaining) {
             		handleMediaDataResponse(
                 		segment,
                 		remaining.buffer,
@@ -397,38 +364,30 @@ export const audioSegmentFetch = ({
         		return;
       		}
 
-			if (value && value.length > 0) 
-			{
+      if (value && value.length > 0) {
         		remaining = concatTypedArray(remaining, value);
         		const boxesInfo = findLastTopIsoBoxCompleted(['mdat'], remaining, offset);
 
-				if (boxesInfo.found) 
-				{
+        if (boxesInfo.found) {
           			const end = boxesInfo.lastCompletedOffset + boxesInfo.size;
 
           			let data;
 
-					if (end === remaining.length) 
-					{
+          if (end === remaining.length) {
             			data = remaining;
             			remaining = new Uint8Array();
-					} 
-					else 
-					{
+          } else {
             			data = new Uint8Array(remaining.subarray(0, end));
             			remaining = remaining.subarray(end);
           			}
 
           			segmentDone = false;
-					if (firstChunkReceiveTime === 0) 
-					{
+          if (firstChunkReceiveTime === 0) {
             			firstChunkReceiveTime = Date.now();
             			firstChunkFlag = true;
-					} 
-					else 
-					{
+          } else {
             			firstChunkFlag = false;
-					}
+          }
 
           			handleMediaDataResponse(
             			segment,
@@ -446,9 +405,7 @@ export const audioSegmentFetch = ({
           			);
 
           			offset = 0;
-				} 
-				else 
-				{
+        } else {
           			offset = boxesInfo.lastCompletedOffset;
         		}
       		}

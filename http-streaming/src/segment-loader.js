@@ -472,8 +472,8 @@ export default class SegmentLoader extends videojs.EventTarget {
         if (this.hasEnoughInfoToLoad_()) {
           this.processLoadQueue_();
         }
-        
-	if (this.hasEnoughInfoToAppend_()) {
+
+        if (this.hasEnoughInfoToAppend_()) {
           this.processCallQueue_();
         }
       });
@@ -1165,20 +1165,20 @@ export default class SegmentLoader extends videojs.EventTarget {
     const bufferedTime = Math.max(0, lastBufferedEnd - currentTime);
 
     if (!playlist.segments.length) {
-      console.log("null segmentInfo 1");
+      console.log('null segmentInfo 1');
       return null;
     }
 
     // if there is plenty of content buffered, and the video has
     // been played before relax for awhile
     if (bufferedTime >= this.goalBufferLength_()) {
-      //return null; // BoZ: tmp
+      // return null; // BoZ: tmp
     }
 
     // if the video has not yet played once, and we already have
     // one segment downloaded do nothing
     if (!hasPlayed && bufferedTime >= 1) {
-      console.log("null segmentInfo 3");
+      console.log('null segmentInfo 3');
       return null;
     }
 
@@ -1461,7 +1461,7 @@ export default class SegmentLoader extends videojs.EventTarget {
    * @private
    */
   handleProgress_(event, simpleSegment) {
-    //this.earlyAbortWhenNeeded_(simpleSegment.stats);
+    // this.earlyAbortWhenNeeded_(simpleSegment.stats);
 
     if (this.checkForAbort_(simpleSegment.requestId)) {
       return;
@@ -1472,15 +1472,15 @@ export default class SegmentLoader extends videojs.EventTarget {
 
   handleTrackInfo_(simpleSegment, trackInfo) {
 
-    //this.earlyAbortWhenNeeded_(simpleSegment.stats);
+    // this.earlyAbortWhenNeeded_(simpleSegment.stats);
 
     if (this.checkForAbort_(simpleSegment.requestId)) {
-      console.log("In handleTrackInfo_, checkForAbort_ 1");
+      console.log('In handleTrackInfo_, checkForAbort_ 1');
       return;
     }
 
     if (this.checkForIllegalMediaSwitch(trackInfo)) {
-      console.log("In handleTrackInfo_, checkForIllegalMediaSwitch");
+      console.log('In handleTrackInfo_, checkForIllegalMediaSwitch');
       return;
     }
 
@@ -1503,12 +1503,11 @@ export default class SegmentLoader extends videojs.EventTarget {
 
     // trackinfo may cause an abort if the trackinfo
     // causes a codec change to an unsupported codec.
-    
+
     if (this.checkForAbort_(simpleSegment.requestId)) {
-      console.log("In handleTrackInfo_, checkForAbort_ 2");
+      console.log('In handleTrackInfo_, checkForAbort_ 2');
       return;
     }
-    
 
     // set trackinfo on the pending segment so that
     // it can append.
@@ -1521,7 +1520,7 @@ export default class SegmentLoader extends videojs.EventTarget {
   }
 
   handleTimingInfo_(simpleSegment, mediaType, timeType, time) {
-    //this.earlyAbortWhenNeeded_(simpleSegment.stats);
+    // this.earlyAbortWhenNeeded_(simpleSegment.stats);
     if (this.checkForAbort_(simpleSegment.requestId)) {
       return;
     }
@@ -1541,7 +1540,7 @@ export default class SegmentLoader extends videojs.EventTarget {
   }
 
   handleCaptions_(simpleSegment, captionData) {
-    //this.earlyAbortWhenNeeded_(simpleSegment.stats);
+    // this.earlyAbortWhenNeeded_(simpleSegment.stats);
 
     if (this.checkForAbort_(simpleSegment.requestId)) {
       return;
@@ -1615,7 +1614,7 @@ export default class SegmentLoader extends videojs.EventTarget {
   }
 
   handleId3_(simpleSegment, id3Frames, dispatchType) {
-    //this.earlyAbortWhenNeeded_(simpleSegment.stats);
+    // this.earlyAbortWhenNeeded_(simpleSegment.stats);
 
     if (this.checkForAbort_(simpleSegment.requestId)) {
       return;
@@ -1795,7 +1794,7 @@ export default class SegmentLoader extends videojs.EventTarget {
     const segmentInfo = this.pendingSegment_;
 
     // Avoid appending init segment for every chunk
-    //if (firstChunk) {
+    // if (firstChunk) {
     if (simpleSegment.map) {
       simpleSegment.map = this.initSegmentForMap(simpleSegment.map, true);
       // move over init segment properties to media request
@@ -1805,13 +1804,12 @@ export default class SegmentLoader extends videojs.EventTarget {
     segmentInfo.isFmp4 = simpleSegment.isFmp4;
     segmentInfo.timingInfo = segmentInfo.timingInfo || {};
 
-    if (!segmentInfo.segmentInfoInitDataApplied)
-    {
+    if (!segmentInfo.segmentInfoInitDataApplied) {
       if (segmentInfo.isFmp4) {
         this.trigger('fmp4'); // Do we need this?
 
         // BoZ: tmp
-        //segmentInfo.timingInfo.start =
+        // segmentInfo.timingInfo.start =
         //  segmentInfo[timingInfoPropertyForMedia(result.type)].start;
       }
 
@@ -1830,18 +1828,18 @@ export default class SegmentLoader extends videojs.EventTarget {
   }
 
   handleData_(simpleSegment, result) {
-    //this.earlyAbortWhenNeeded_(simpleSegment.stats);
+    // this.earlyAbortWhenNeeded_(simpleSegment.stats);
 
     if (this.checkForAbort_(simpleSegment.requestId)) {
       return;
     }
-    
+
     // If there's anything in the call queue, then this data came later and should be
     // executed after the calls currently queued.
-    //if (this.callQueue_.length || !this.hasEnoughInfoToAppend_()) {
+    // if (this.callQueue_.length || !this.hasEnoughInfoToAppend_()) {
     //  console.log("callQueue_ push in handleData_: callqueue length " + this.callQueue_.length);
-      // BoZ: tmp
-      /*
+    // BoZ: tmp
+    /*
       if (!this.sourceUpdater_.ready())
       {
         return;
@@ -1851,13 +1849,13 @@ export default class SegmentLoader extends videojs.EventTarget {
       return;
       */
 
-      // BoZ: tmp
+    // BoZ: tmp
     //  if (this.sourceUpdater_.ready())
     //  {
     //    this.callQueue_.push(this.handleData_.bind(this, simpleSegment, result));
     //    return;
     //  }
-    //}
+    // }
 
     const segmentInfo = this.pendingSegment_;
 
@@ -1914,7 +1912,7 @@ export default class SegmentLoader extends videojs.EventTarget {
         firstVideoFrameTimeForData = this.handlePartialData_ ?
           result.videoFramePtsTime : segmentInfo.videoTimingInfo.start;
       }
-      
+
       segmentInfo.timingInfo.start = this.trueSegmentStart_({
         currentStart: segmentInfo.timingInfo.start,
         playlist: segmentInfo.playlist,
@@ -2050,18 +2048,15 @@ export default class SegmentLoader extends videojs.EventTarget {
     if (initSegment) {
       // if the media initialization segment is changing, append it before the content
       // segment
-      
-      // BoZ: For low-latency dash with chunked appending, init segment shall only be 
+
+      // BoZ: For low-latency dash with chunked appending, init segment shall only be
       // appended once. MSE would accept if appending the init together with every chunk.
-      if (type === 'video' && !segmentInfo.videoInitDataAppended)
-      {
+      if (type === 'video' && !segmentInfo.videoInitDataAppended) {
         segments.unshift(initSegment);
         byteLength += initSegment.byteLength;
 
         segmentInfo.videoInitDataAppended = true;
-      }
-      else if ((type === 'audio' && !segmentInfo.audioInitDataAppended))
-      {
+      } else if ((type === 'audio' && !segmentInfo.audioInitDataAppended)) {
         segments.unshift(initSegment);
         byteLength += initSegment.byteLength;
 
@@ -2088,8 +2083,8 @@ export default class SegmentLoader extends videojs.EventTarget {
     });
 
     // BoZ: tmp: make sure test videos have both video and audio.
-    //this.sourceUpdater_.videoQueueCallback(this.checkAppendsDone_.bind(this, segmentInfo));
-    //this.sourceUpdater_.audioQueueCallback(this.checkAppendsDone_.bind(this, segmentInfo));
+    // this.sourceUpdater_.videoQueueCallback(this.checkAppendsDone_.bind(this, segmentInfo));
+    // this.sourceUpdater_.audioQueueCallback(this.checkAppendsDone_.bind(this, segmentInfo));
   }
 
   handleVideoSegmentTimingInfo_(requestId, videoSegmentTimingInfo) {
@@ -2244,30 +2239,25 @@ export default class SegmentLoader extends videojs.EventTarget {
     	});
     }
 	  // Fetch
-    else {
-      if (this.loaderType_ === 'audio')
-      {
+    else if (this.loaderType_ === 'audio') {
 		    segmentInfo.abortRequests = audioSegmentFetch({
 			    segment: simpleSegment,
 			    trackInfoFn: this.handleTrackInfo_.bind(this),
 			    timingInfoFn: this.handleTimingInfo_.bind(this),
-          dataFn: this.handleData_.bind(this),
-          chunkFn: this.handleMediaChunk_.bind(this),
-          doneFn: this.segmentRequestFinished_.bind(this)
-        });
-      }
-      else if (this.loaderType_ === 'main')
-      {
+        dataFn: this.handleData_.bind(this),
+        chunkFn: this.handleMediaChunk_.bind(this),
+        doneFn: this.segmentRequestFinished_.bind(this)
+      });
+    } else if (this.loaderType_ === 'main') {
 		    segmentInfo.abortRequests = videoSegmentFetch({
 			    segment: simpleSegment,
 			    trackInfoFn: this.handleTrackInfo_.bind(this),
 			    timingInfoFn: this.handleTimingInfo_.bind(this),
-          dataFn: this.handleData_.bind(this),
-          chunkFn: this.handleMediaChunk_.bind(this),
-          doneFn: this.segmentRequestFinished_.bind(this)
-        });
-      }
-	  }
+        dataFn: this.handleData_.bind(this),
+        chunkFn: this.handleMediaChunk_.bind(this),
+        doneFn: this.segmentRequestFinished_.bind(this)
+      });
+    }
   }
 
   /**
@@ -2385,19 +2375,18 @@ export default class SegmentLoader extends videojs.EventTarget {
     // data, and can continue even if the source buffers are not set up and we didn't get
     // any data from the segment
     if (this.callQueue_.length) {
-      console.log("callQueue_ push in segmentRequestFinished_");
+      console.log('callQueue_ push in segmentRequestFinished_');
       this.callQueue_.push(this.segmentRequestFinished_.bind(this, error, simpleSegment, result));
-      return; 
+      return;
     }
 
-    if (!this.useFetch)
-    {
+    if (!this.useFetch) {
       this.saveTransferStats_(simpleSegment.stats);
     }
 
     // The request was aborted and the SegmentLoader has already been reset
     if (!this.pendingSegment_) {
-      console.log("Null pendingSegment_");
+      console.log('Null pendingSegment_');
       return;
     }
 
@@ -2406,7 +2395,7 @@ export default class SegmentLoader extends videojs.EventTarget {
     // request triggers due to a limitation in the XHR library
     // do not count this as any sort of request or we risk double-counting
     if (simpleSegment.requestId !== this.pendingSegment_.requestId) {
-      console.log("requestId not match");
+      console.log('requestId not match');
       return;
     }
 
@@ -2438,8 +2427,7 @@ export default class SegmentLoader extends videojs.EventTarget {
       return;
     }
 
-    if (!this.useFetch)
-    {
+    if (!this.useFetch) {
       // the response was a success so set any bandwidth stats the request
       // generated for ABR purposes
       this.saveBandwidthRelatedStats_(simpleSegment.stats);
@@ -2612,16 +2600,16 @@ export default class SegmentLoader extends videojs.EventTarget {
 
     // BoZ: checkAppendsDone_ will be called back from the sourceUpdater (MSE)
     if (waitForVideo) {
-      let error = this.sourceUpdater_.videoQueueCallback(this.checkAppendsDone_.bind(this, segmentInfo));
-      if (error !== "success")
-      {
+      const error = this.sourceUpdater_.videoQueueCallback(this.checkAppendsDone_.bind(this, segmentInfo));
+
+      if (error !== 'success') {
         this.state = 'READY';
       }
     }
     if (waitForAudio) {
-      let error = this.sourceUpdater_.audioQueueCallback(this.checkAppendsDone_.bind(this, segmentInfo));
-      if (error !== "success")
-      {
+      const error = this.sourceUpdater_.audioQueueCallback(this.checkAppendsDone_.bind(this, segmentInfo));
+
+      if (error !== 'success') {
         this.state = 'READY';
       }
     }
@@ -2631,7 +2619,6 @@ export default class SegmentLoader extends videojs.EventTarget {
     if (this.checkForAbort_(segmentInfo.requestId)) {
       return;
     }
-    
 
     segmentInfo.waitingOnAppends--;
 
@@ -2740,7 +2727,7 @@ export default class SegmentLoader extends videojs.EventTarget {
     // Now that the end of the segment has been reached, we can set the end time. It's
     // best to wait until all appends are done so we're sure that the primary media is
     // finished (and we have its end time).
-    //this.updateTimingInfoEnd_(segmentInfo); // BoZ: tmp
+    // this.updateTimingInfoEnd_(segmentInfo); // BoZ: tmp
 
     if (this.shouldSaveSegmentTimingInfo_) {
       // Timeline mappings should only be saved for the main loader. This is for multiple

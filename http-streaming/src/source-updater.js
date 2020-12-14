@@ -60,8 +60,8 @@ const shiftQueue = (type, sourceUpdater) => {
       // Source actions process synchronously. Therefore, both audio and video source
       // buffers are now clear to process the next queue entries.
       // BoZ: tmp
-      //shiftQueue('audio', sourceUpdater);
-      //shiftQueue('video', sourceUpdater);
+      // shiftQueue('audio', sourceUpdater);
+      // shiftQueue('video', sourceUpdater);
     }
 
     // Media Source actions require both source buffers, so if the media source action
@@ -141,15 +141,13 @@ const actions = {
 
     sourceUpdater.logger_(`Appending segment ${segmentInfo.mediaIndex}'s ${bytes.length} bytes to ${type}Buffer`);
 
-    let dec = new TextDecoder("utf-8");
-    let content = dec.decode(bytes);
+    const dec = new TextDecoder('utf-8');
+    const content = dec.decode(bytes);
 
     try { // BoZ: tmp
       sourceBuffer.appendBuffer(bytes);
-    }
-    catch(err)
-    {
-      console.log("source buffer append failed: " + err);
+    } catch (err) {
+      console.log('source buffer append failed: ' + err);
     }
   },
   remove: (start, end) => (type, sourceUpdater) => {
@@ -351,7 +349,7 @@ export default class SourceUpdater extends videojs.EventTarget {
 
   createSourceBuffers(codecs) {
     if (this.ready()) {
-      console.log("sourceUpdater: source buffer already created");
+      console.log('sourceUpdater: source buffer already created');
       // already created them before
       return;
     }
@@ -496,7 +494,7 @@ export default class SourceUpdater extends videojs.EventTarget {
       const codec = codecs[type];
 
       if (!this.ready()) {
-        console.log("sourceUpdater::addOrChangeSourceBuffers::addSourceBuffer: codec: " + codecs);
+        console.log('sourceUpdater::addOrChangeSourceBuffers::addSourceBuffer: codec: ' + codecs);
         return this.addSourceBuffer(type, codec);
       }
 
@@ -518,7 +516,7 @@ export default class SourceUpdater extends videojs.EventTarget {
 
     this.processedAppend_ = true;
     if (type === 'audio' && this.videoBuffer && !this.videoAppendQueued_) {
-      console.log("sourceUpdater::appendBuffer: delayed audio append until video append");
+      console.log('sourceUpdater::appendBuffer: delayed audio append until video append');
       segmentInfo.audioInitDataAppended = false;
       this.delayedAudioAppendQueue_.push([options, doneFn]);
       this.logger_(`delayed audio append of ${bytes.length} until video append`);
@@ -526,18 +524,14 @@ export default class SourceUpdater extends videojs.EventTarget {
     }
 
     if ((type === 'video' && !this.videoBuffer) ||
-      (type === 'audio' && !this.audioBuffer))
-    {
-      if (type === 'audio')
-      {
+      (type === 'audio' && !this.audioBuffer)) {
+      if (type === 'audio') {
         segmentInfo.audioInitDataAppended = false;
-      }
-      else if (type === 'video')
-      {
+      } else if (type === 'video') {
         segmentInfo.videoInitDataAppended = false;
       }
 
-      console.log("sourceUpdater::appendBuffer: source buffer not ready, do not append");
+      console.log('sourceUpdater::appendBuffer: source buffer not ready, do not append');
       return;
     }
 
@@ -783,8 +777,8 @@ export default class SourceUpdater extends videojs.EventTarget {
    */
   audioQueueCallback(callback) {
     if (!this.audioBuffer) {
-      console.log("SourceUpdater::videoQueueCallback: null this.audioBuffer");
-      return "audioSourceBufferNotReady";
+      console.log('SourceUpdater::videoQueueCallback: null this.audioBuffer');
+      return 'audioSourceBufferNotReady';
     }
     pushQueue({
       type: 'audio',
@@ -793,7 +787,7 @@ export default class SourceUpdater extends videojs.EventTarget {
       name: 'callback'
     });
 
-    return "success";
+    return 'success';
   }
 
   /**
@@ -805,8 +799,8 @@ export default class SourceUpdater extends videojs.EventTarget {
    */
   videoQueueCallback(callback) {
     if (!this.videoBuffer) {
-      console.log("SourceUpdater::videoQueueCallback: null this.videoBuffer");
-      return "videoSourceBufferNotReady"; // BoZ: tmp
+      console.log('SourceUpdater::videoQueueCallback: null this.videoBuffer');
+      return 'videoSourceBufferNotReady'; // BoZ: tmp
     }
     pushQueue({
       type: 'video',
@@ -815,7 +809,7 @@ export default class SourceUpdater extends videojs.EventTarget {
       name: 'callback'
     });
 
-    return "success";
+    return 'success';
   }
 
   /**
