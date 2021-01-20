@@ -239,25 +239,55 @@ export class MasterPlaylistController extends videojs.EventTarget {
     this.setupMasterPlaylistLoaderListeners_();
 
     function getStats(vhs, playbackStartTime) {
-      console.log("getStats");
+      //console.log("getStats");
 
       if (vhs)
       {
+
         let currentPlaybackTimeMs = vhs.tech_.currentTime() * 1000;
         console.log("Stats: vhs currenTime: " + currentPlaybackTimeMs + " playbackStartTime: " + playbackStartTime);
         
-        // currentTimeOffset: The initial difference of program time and wallclock time.
         if (!currentTimeOffset && currentPlaybackTimeMs > 0)
         {
           currentTimeOffset = currentPlaybackTimeMs - 2000; // 2000: the first time function getStat() is called is 2 seconds from the initilization of the master-playlist-controller.
+		  //return;
         }
          
-        let currentWallTimeMs = Date.now() - playbackStartTime + currentTimeOffset;
-        let latency = currentWallTimeMs - currentPlaybackTimeMs;
+        //let currentWallTimeMs = Date.now() - playbackStartTime + 3.5;
+
+		let currentWallTimeMs;
+		let currentWallTimeMsRelative;
+
+		if (currentTimeOffset)
+		{
+			currentWallTimeMs = Date.now();
+			currentWallTimeMsRelative = currentWallTimeMs - playbackStartTime;
+			console.log("Stats: currentWallTimeMsRelative: " + currentWallTimeMsRelative);
+		}
+
+/*
+		let currentPlaybackTimeMs = vhs.tech_.currentTime() * 1000;
+		let currentWallTimeMs = Date.now();
 
         console.log("Stats: currentPlaybackTime: " + currentPlaybackTimeMs + " currentWallTime: " + currentWallTimeMs);
         //console.log("Stats: bufferedSegments: " + player.metrics.bufferedSegments.amountOfBufferedVideoSegments);
         console.log("Stats: latency: " + latency/1000);
+*/
+
+		let latency = currentWallTimeMsRelative - currentPlaybackTimeMs;
+
+		console.log("Stats: latency (ms): " + latency);
+
+		var metrics = {};
+
+    	//metrics.bufferedSeconds = buffered.end(0) - buffered.start(0);
+    	metrics.latency = latency/1000;
+
+    	let url = "http://localhost:5001/metrics";
+    	let metricsRequest = new XMLHttpRequest();
+
+    	metricsRequest.open("POST", url, true); // false for synchronous request
+    	metricsRequest.send(JSON.stringify(metrics));
       }
 
       setTimeout(getStats, 2000, vhs, playbackStartTime);
